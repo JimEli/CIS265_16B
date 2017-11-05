@@ -151,8 +151,8 @@ int main(void) {
 		z = _DCOMPLEX_(real, imagine);
 #endif
 		// Display results.
-		printf("Polar form of (%g + %gi) = ", real, imagine);
-		printf("%.2f (theta-degrees) + %.2f (r)\n\n", degrees(carg(z)), cnorm(z) );
+		fprintf(stdout, "Polar form of (%g + %gi) = ", real, imagine);
+		fprintf(stdout, "%.2f (theta-degrees) + %.2f (r)\n\n", degrees(carg(z)), cnorm(z) );
 	}
 }
 
