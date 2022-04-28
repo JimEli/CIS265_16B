@@ -36,6 +36,7 @@
 
 #ifdef __GNUC__
 #define COMPLEX double complex // GNU C version of complex number.
+
 #elif _MSC_VER
 #define COMPLEX _Dcomplex      // MSVC version of complex number.
 #define carg cargument         // MSVC has no carg() function, however GNU GCC does.
@@ -50,19 +51,25 @@
 * a complex number is a measure of the length of the vector representing the complex 
 * number. The modulus of a complex number a + bi is sqrt(a^2 + b^2), written |a + bi|.
 */
-double cnorm(COMPLEX z) { 
+double cnorm(COMPLEX z) 
+{ 
 	// Catch all floating point exceptions.
 	feclearexcept(FE_ALL_EXCEPT);
+	
 	// Calculate rho.
 	double n = sqrt(creal(z) * creal(z) + cimag(z) * cimag(z));
+	
 	// Check fp exceptions.
 	int fpeRaised = fetestexcept(FE_ALL_EXCEPT);
-	if (fpeRaised == FE_UNDERFLOW || fpeRaised == FE_INVALID) {
+	if (fpeRaised == FE_UNDERFLOW || fpeRaised == FE_INVALID) 
+	{
 		fputs("Fatal math error occured.\n", stderr);
 		exit(EXIT_FAILURE);
 	}
 	feclearexcept(FE_ALL_EXCEPT);
-	return (double)n; // Force result to be double.
+	
+	// Force result to be double.
+	return (double)n; 
 }
 
 /*
@@ -72,68 +79,90 @@ double cnorm(COMPLEX z) {
  * axis and a negative sense when measured in a clockwise direction. The principal values are 
  * greater than –pi and less than or equal to +pi.  Note: GNU GCC contains this function.
  */
-double cargument(COMPLEX z) {
+double cargument(COMPLEX z) 
+{
 	// Catch all floating point exceptions.
 	feclearexcept(FE_ALL_EXCEPT);
+
 	// Calculate theta.
 	double arg = atan(cimag(z) / creal(z));
+	
 	// Check fp exceptions.
 	int fpeRaised = fetestexcept(FE_ALL_EXCEPT);
-	if (fpeRaised == FE_DIVBYZERO || fpeRaised == FE_INVALID) {
+	if (fpeRaised == FE_DIVBYZERO || fpeRaised == FE_INVALID) 
+	{
 		fputs("Fatal math error (divide by zero?).\n", stderr);
 		exit(EXIT_FAILURE);
 	}
 	feclearexcept(FE_ALL_EXCEPT);
-	return (double)arg;	// Force result to be double.
+
+	// Force result to be double.
+	return (double)arg;
 }
 
 // Input floating point number.
-bool inputFloat(const char *prompt, double *value) {
+bool inputFloat(const char *prompt, double *value) 
+{
 	int attempts = MAXIMUM_INPUT_ATTEMPTS; // Input attempt counter.
 	bool retVal = false;                   // Success/fail flag (assume fail).
 
-	assert(attempts > 0); // Assert attempts valid non-zero, positive number.
+	// Assert attempts valid non-zero, positive number.
+	assert(attempts > 0); 
 
 	// Attempt only so many inputs.
-	while (attempts--) {
+	while (attempts--) 
+	{
 		char input[9]; // Holds user input as string.
 		double d;      // Temporary holds user input (double).
 											   
 		// Prompt and grab user input.
 		fputs(prompt, stdout);
-		if (!fgets(input, sizeof input, stdin)) {
+		if (!fgets(input, sizeof input, stdin)) 
+		{
 			fputs("\nFatal program error!\n", stderr);
 			exit(EXIT_FAILURE);
 		}
-		else if (!strchr(input, '\n')) {
+		else if (!strchr(input, '\n')) 
+		{
 			// input too long, eat remainder.
 			while (fgets(input, sizeof input, stdin) && !strchr(input, '\n'))
 				; // Empty body.
+		
 			fputs("Too many characters input.\n", stdout);
 		}
-		else {
+		else 
+		{
 			// Catch special case of null input.
 			if (strlen(input) <= 1)
 				continue;
 
 			// Attempt to convert from string to float, and validate.
-			if (sscanf(input, "%lf", &d)) {
-				if (d >= MIN_AMOUNT && d <= MAX_AMOUNT) {
+			if (sscanf(input, "%lf", &d)) 
+			{
+				if (d >= MIN_AMOUNT && d <= MAX_AMOUNT) 
+				{
 					*value = d;
 					retVal = true;
-					break; // Exit.
+					// Exit.
+					break; 
 				}
 				else
+				{
 					fprintf(stdout, "Value entered is outside allowable range (%0.2f - %0.2f)\n", MIN_AMOUNT, MAX_AMOUNT);
+				}
 			}
 			else
+			{
 				fputs("Invalid input.\n", stdout);
+			}
 		}
 	}
+	
 	return retVal;
 }
 
-int main(void) {
+int main(void) 
+{
 	COMPLEX z;            // Complex number.
 	double real, imagine; // Holds user input used to define complex number (z).
 
@@ -144,15 +173,17 @@ int main(void) {
 	fputs("This program converts a complex number from cartesian to polar form.\n", stdout);
 	fputs("A cartesian complex number has the form of (a + bi).\n", stdout);
 
-	if (inputFloat("Enter real part (a): ", &real) && inputFloat("Enter imaginary part (b): ", &imagine)) {
+	if (inputFloat("Enter real part (a): ", &real) && inputFloat("Enter imaginary part (b): ", &imagine)) 
+	{
+
 #ifdef __GNUC__
 		z = real + imagine * I;
 #elif _MSC_VER
 		z = _DCOMPLEX_(real, imagine);
 #endif
+		
 		// Display results.
 		fprintf(stdout, "Polar form of (%g + %gi) = ", real, imagine);
 		fprintf(stdout, "%.2f (theta-degrees) + %.2f (r)\n\n", degrees(carg(z)), cnorm(z) );
 	}
 }
-
